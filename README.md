@@ -35,10 +35,11 @@ The interesting parts of this project were the problems underneath the features.
 | **A 5,000-page PDF can't fit in a prompt** | PyMuPDF for fast parsing (about 0.1 s for 5,000 pages), a default 300-page window, a page-range picker, and map-reduce condensing that reports how much it covered instead of silently dropping text. |
 | **Chat on big files loses the middle** | TF-IDF-style retrieval picks the most relevant sections for each question, so chat stays fast and accurate. |
 | **Users can't verify AI output** | Every answer shows its source passages; a no-AI reader highlights the facts in the original text. |
-| **Models write messy citations** ("s. 3", "Table 1") | Citation rules in the prompt plus a normaliser that rewrites them to "Slide 3" / "Page 4". |
 | **Structured extraction is brittle** | Strict JSON prompts, tolerant parsing, a "Not found" rule instead of guessing, and per-file isolation so one failure doesn't break the batch. |
+| **Scanned documents have no text** | Pages with nothing readable are detected automatically, rendered to images with PyMuPDF and transcribed with Gemini vision (up to 16 pages per run). Results are cached per session so a scan is never read twice. |
+| **Free-tier quotas run out fast** | Repeat extractions are served from a cache, chat sends at most about 80,000 characters through retrieval, Gemini's reasoning effort is set low, and the Fields table remembers finished files so a retry only re-runs what failed. |
+| **Uploaded files can't be trusted** | Document text is HTML-escaped before highlighting, and exported HTML has scripts and event handlers stripped, so a malicious file can't inject code into the page. |
 | **Privacy in a shared web app** | Per-visitor sessions, verified with a two-user test; server caches are keyed by content and expire after 30 minutes. |
-| **Phones** | Responsive layout checked at five screen sizes in a headless browser; 16 px inputs to stop iPhone zoom; tabs that reflow into a grid. |
 
 ## Screenshots
 
