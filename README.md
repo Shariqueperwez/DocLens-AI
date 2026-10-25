@@ -1,196 +1,98 @@
-<div align="center">
-
 # ◈ DocLens AI
 
-### Read any document through an AI lens.
+**A document-intelligence web app that doesn't just answer — it shows you where the answer came from.**
 
-Extract insights, chat with your files, compare versions and export to Excel.<br>
-**Free to run · no credit card · works on phones**
+Built with Python, Streamlit and Google Gemini. Runs entirely on free-tier APIs.
 
-[![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
-[![Streamlit](https://img.shields.io/badge/Streamlit-app-FF4B4B?logo=streamlit&logoColor=white)](https://streamlit.io/)
-[![Google Gemini](https://img.shields.io/badge/Google%20Gemini-free%20tier-4285F4?logo=googlegemini&logoColor=white)](https://aistudio.google.com/apikey)
-[![Made with love](https://img.shields.io/badge/Made%20by-Sharique-b5451b)](https://github.com/Shariqueperwez)
-
-<br>
-
-<img src="docs/screenshots/hero.png" alt="DocLens AI showing a contract with highlighted dates, amounts and search matches" width="900">
-
-</div>
-
-<br>
-
-## Why DocLens?
-
-Most "chat with your PDF" tools give you an answer and ask you to trust it. DocLens is built around **seeing and checking** the document, not only summarising it.
-
-- 🔍 **See it** — read any file with dates, amounts, emails and key terms colour-highlighted, with instant search and page numbers. No AI needed.
-- 📎 **Verify it** — every chat answer shows the exact passages it came from.
-- 🧾 **Use it** — pull specific fields from many files into a table and download it as Excel.
+![DocLens AI](docs/screenshots/hero.png)
 
 ---
 
-## Features
+## The problem
 
-### Understand
-| | |
+Long documents (contracts, invoices, reports, slide decks) are slow to read, and "chat with your PDF" tools make you trust an AI answer without any way to check it. Most also break the moment a free API key is rate-limited or a model is retired.
+
+## The solution
+
+DocLens turns a document into something you can **read, question and verify**:
+
+| You want to… | DocLens gives you… |
 |---|---|
-| **16 extraction modes** | Smart Auto, Summary, Key Points, Data & Stats, Action Items, Concepts, Legal, Risks & Red Flags, Entities, Timeline, Q&A, Study Notes & Flashcards, Explain Simply, Tone & Sentiment, Compare Documents, Full Report |
-| **Chat with sources** | Ask follow-up questions; each answer cites pages/slides and lists the passages it used |
-| **Lens reader** | Page-by-page reader with highlighted dates, amounts, emails, links and key terms, plus search |
-| **Smart hint** | Recognises invoices, contracts, résumés, papers and more, and suggests the best mode |
-| **Compare** | What changed between two versions, conflicting numbers, and a similarity score |
+| Understand it fast | 16 extraction modes: summary, risks, timeline, action items, study notes and more |
+| Trust the answer | Chat that cites page/slide numbers and lists the exact source passages |
+| See what matters | A reader that highlights dates, amounts, emails and key terms, with instant search |
+| Get data out | A table of fields you choose across up to 5 files, exported to Excel or CSV |
+| Spot differences | Document comparison with a similarity score |
+| Read scans | Vision-based OCR for scanned PDFs and photos |
 
-### Extract & export
-| | |
+## Engineering decisions
+
+The interesting parts of this project were the problems underneath the features.
+
+| Challenge | What I did |
 |---|---|
-| **Fields → Excel** | Type the fields you want (or use Invoice / Résumé / Contract / Receipt templates) and run them across up to 5 files |
-| **7 export formats** | Word, Excel, CSV, Markdown, HTML, JSON, TXT |
-
-### Built for real documents
-| | |
-|---|---|
-| **Scanned PDFs & photos** | Gemini vision reads scans and images (`.png` `.jpg` `.webp`) |
-| **Huge files** | Page-range picker (`1-50, 120-180`), a clear "analysing pages X of Y" notice, and smart retrieval for chat on very large documents |
-| **16 output languages** | English, Hindi, Hinglish, Urdu, Bengali, Tamil, Telugu, Marathi, Gujarati, Spanish, French, German and more |
-| **15+ file types** | PDF, DOCX (with tables), PPTX (with notes), TXT, MD, CSV, JSON, HTML, images… |
-
-### Built to be reliable
-| | |
-|---|---|
-| **Automatic failover** | Gemini → OpenRouter → Groq, model by model, so one rate limit doesn't stop the app |
-| **Private sessions** | Each visitor only ever sees their own uploads, chats and history |
-| **Phone & tablet ready** | Responsive layout, thumb-sized buttons, no iPhone input zoom, auto-scroll to results |
-
----
+| **Free APIs fail** (keys expire, models retire, limits hit) | Provider layer with automatic failover: Gemini → OpenRouter → Groq, model by model. Model names are configurable without code changes. |
+| **A 5,000-page PDF can't fit in a prompt** | PyMuPDF for fast parsing (about 0.1 s for 5,000 pages), a default 300-page window, a page-range picker, and map-reduce condensing that reports how much it covered instead of silently dropping text. |
+| **Chat on big files loses the middle** | TF-IDF-style retrieval picks the most relevant sections for each question, so chat stays fast and accurate. |
+| **Users can't verify AI output** | Every answer shows its source passages; a no-AI reader highlights the facts in the original text. |
+| **Models write messy citations** ("s. 3", "Table 1") | Citation rules in the prompt plus a normaliser that rewrites them to "Slide 3" / "Page 4". |
+| **Structured extraction is brittle** | Strict JSON prompts, tolerant parsing, a "Not found" rule instead of guessing, and per-file isolation so one failure doesn't break the batch. |
+| **Privacy in a shared web app** | Per-visitor sessions, verified with a two-user test; server caches are keyed by content and expire after 30 minutes. |
+| **Phones** | Responsive layout checked at five screen sizes in a headless browser; 16 px inputs to stop iPhone zoom; tabs that reflow into a grid. |
 
 ## Screenshots
 
 <table>
   <tr>
-    <td width="50%" valign="top"><b>Instant insights — no AI needed</b><br><br><img src="docs/screenshots/stats.png" alt="Document statistics and keyword chart"></td>
-    <td width="50%" valign="top"><b>Works on your phone</b><br><br><img src="docs/screenshots/mobile.png" alt="DocLens on a phone: Lens reader and statistics"></td>
+    <td width="50%" valign="top"><b>Instant insights, no AI needed</b><br><br><img src="docs/screenshots/stats.png" alt="Statistics"></td>
+    <td width="50%" valign="top"><b>On a phone</b><br><br><img src="docs/screenshots/mobile.png" alt="Mobile layout"></td>
   </tr>
 </table>
 
-<!--
-  Add a real Extract screenshot after you deploy:
-  1. Run an extraction, take a screenshot, save it as docs/screenshots/extract.png
-  2. Replace this comment with:  <img src="docs/screenshots/extract.png" alt="AI extraction result" width="900">
--->
+## Tech stack
 
----
+`Python` · `Streamlit` · `Google Gemini (OpenAI-compatible API)` · `PyMuPDF` · `python-docx` · `python-pptx` · `openpyxl` · `pandas`
 
-## Quick start
+## Run it locally
 
 ```bash
 git clone https://github.com/Shariqueperwez/DocLens-AI.git
 cd DocLens-AI
-
 python -m venv venv
-venv\Scripts\activate            # macOS / Linux:  source venv/bin/activate
+venv\Scripts\activate          # macOS/Linux: source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-**1. Get a free Gemini key** (no credit card): <https://aistudio.google.com/apikey>
-
-**2. Save it.** Create `.streamlit/secrets.toml`:
+Add a free key from [aistudio.google.com/apikey](https://aistudio.google.com/apikey) in `.streamlit/secrets.toml`:
 
 ```toml
 GEMINI_API_KEY = "your_key_here"
 ```
 
-**3. Run it**
-
 ```bash
 streamlit run app.py
 ```
 
-Open <http://localhost:8501> and drop in a document.
-
-> 🔐 `secrets.toml` is git-ignored. Never commit a real key.
-
-### Deploy for free (Streamlit Community Cloud)
-1. Push this repo to GitHub (public).
-2. On [share.streamlit.io](https://share.streamlit.io) click **Create app**, choose this repo, main file `app.py`.
-3. Under **Advanced settings → Secrets**, paste `GEMINI_API_KEY = "your_key_here"` and deploy.
-
-The key stays on the server. Visitors never see or enter one.
-
----
-
-## Configuration
-
-All optional except the first key. Put these in `.streamlit/secrets.toml` (or Streamlit Cloud → Secrets).
-
-| Key | Purpose |
-|---|---|
-| `GEMINI_API_KEY` | Primary AI provider — free tier, supports scanned-page vision |
-| `OPENROUTER_API_KEY` | Fallback provider (free models) |
-| `GROQ_API_KEY` | Fallback provider |
-| `GEMINI_MODEL`, `OPENROUTER_MODEL`, `GROQ_MODEL` | Override a model name if a provider retires one — no code change needed |
-
-Limits you can change: `maxUploadSize` in `.streamlit/config.toml` (default 5 MB) and `MAX_FILES` in `app.py` (default 5).
-
----
-
-## How it works
-
-```mermaid
-flowchart LR
-    A["Upload<br/>PDF, Word, PowerPoint, images"] --> B["Read and OCR"]
-    B --> C["Lens, Search, Stats<br/>no AI needed"]
-    B --> D["AI engine"]
-    D --> E["Extract"]
-    D --> F["Chat with sources"]
-    D --> G["Fields to Excel"]
-    D --> H["Compare"]
-    D -.->|"automatic failover"| I["Gemini, then OpenRouter, then Groq"]
-```
-
-Large documents are handled honestly: DocLens reads the first 300 pages by default (or the range you choose), condenses text that exceeds a provider's limit section by section, and tells you when anything couldn't be covered.
-
----
-
-## Project structure
+## Project layout
 
 ```
-app.py                 Streamlit interface
-assets/style.css       Editorial theme + responsive rules
-core/
-  llm.py               Providers, streaming, failover, vision OCR, long-text condensing
-  documents.py         File readers, page ranges, analytics
-  prompts.py           The 16 modes, detail levels, languages, citation rules
-  lens.py              Highlight reader, page sections, document-type hints
-  search.py            Instant search and document similarity
-  retrieval.py         Relevance search for chat on large documents
-  fields.py            Structured field extraction → table
-  exporters.py         TXT / MD / HTML / JSON / DOCX / XLSX / CSV
-docs/screenshots/      README images
+app.py              Streamlit interface
+core/llm.py         Providers, streaming, failover, vision OCR
+core/documents.py   File readers, page ranges, analytics
+core/retrieval.py   Relevance search for large documents
+core/lens.py        Highlight reader and document-type hints
+core/search.py      Instant search and similarity
+core/fields.py      Structured extraction → table
+core/prompts.py     Modes, citation rules, language support
+core/exporters.py   Word / Excel / CSV / Markdown / HTML / JSON / TXT
 ```
 
----
+## Limitations
 
-## Privacy & limitations
-
-- **Private by design.** Every visitor has their own session; uploads, chat and history are visible only to them and vanish on refresh. DocLens writes nothing to disk. Short-lived memory caches expire after 30 minutes and are never shown to other visitors.
-- **Your text goes to the AI provider** to answer a request. On Google's *free* tier, prompts may be used to improve Google products (outside the EU/UK/CH), so don't upload confidential documents with a free key.
-- **Free tiers have rate limits** (a few requests a minute). DocLens retries and falls back automatically, but heavy use can still hit them.
-- **AI can be wrong.** Check anything important, especially legal and financial details. That's what the Lens reader and chat sources are for.
-- Scanned-page OCR reads up to 16 pages per run.
+- Free AI tiers are rate-limited, and on Google's free tier prompts may be used to improve its products, so avoid confidential files.
+- Documents over about 600 pages must be analysed in page ranges.
+- AI output can be wrong. The reader and source passages exist so you can check it.
 
 ---
 
-## Tech stack
-
-Python · Streamlit · Google Gemini (OpenAI-compatible API) · PyMuPDF · python-docx · python-pptx · openpyxl · pandas
-
----
-
-<div align="center">
-
-**Built by [Sharique](https://github.com/Shariqueperwez)**
-
-If DocLens helped you, a ⭐ on the repo means a lot.
-
-</div>
+Built by [Sharique](https://github.com/Shariqueperwez)
