@@ -1,178 +1,221 @@
+
 <div align="center">
 
-<img src="docs/banner.png" alt="DocLens AI — Read it. Question it. Verify it." width="100%">
+# DocLens AI
 
-<br>
+### Read it. Question it. Verify it.
 
 **A document-intelligence web app that doesn't just answer. It shows you where the answer came from.**
 
-<br>
+[![Python](https://img.shields.io/badge/Python-3.10%2B-b5451b?style=for-the-badge&logo=python&logoColor=white&labelColor=0d0d0d)](https://www.python.org/)
+[![Streamlit](https://img.shields.io/badge/Streamlit-App-b5451b?style=for-the-badge&logo=streamlit&logoColor=white&labelColor=0d0d0d)](https://streamlit.io/)
+[![Gemini](https://img.shields.io/badge/Google_Gemini-AI-b5451b?style=for-the-badge&logo=googlegemini&logoColor=white&labelColor=0d0d0d)](https://ai.google.dev/)
 
-![Python](https://img.shields.io/badge/Python-3.10%2B-b5451b?style=for-the-badge&logo=python&logoColor=white&labelColor=0d0d0d)
-![Streamlit](https://img.shields.io/badge/Streamlit-App-b5451b?style=for-the-badge&logo=streamlit&logoColor=white&labelColor=0d0d0d)
-![Gemini](https://img.shields.io/badge/Google%20Gemini-Free%20tier-b5451b?style=for-the-badge&logo=googlegemini&logoColor=white&labelColor=0d0d0d)
-
-<br>
-
-[**The solution**](#the-solution) &nbsp;·&nbsp; [**How it works**](#how-it-works) &nbsp;·&nbsp; [**Engineering**](#engineering-decisions) &nbsp;·&nbsp; [**Screenshots**](#screenshots) &nbsp;·&nbsp; [**Run it**](#run-it-locally)
+[**Live Demo**](https://doclens-ai.streamlit.app/) · [**The Solution**](#the-solution) · [**How It Works**](#how-it-works) · [**Screenshots**](#screenshots) · [**Tech Stack**](#tech-stack) · [**Run Locally**](#run-it-locally)
 
 <br>
 
-<img src="docs/showcase.png" alt="DocLens on desktop and phone" width="92%">
-
-<br>
-
-<img src="docs/stats-strip.png" alt="16 extraction modes, 7 export formats, 16 languages, free to run" width="92%">
-
-<img src="docs/divider.svg" alt="" width="60%">
+<img src="doc/showcase.png" alt="DocLens AI application homepage" width="100%">
 
 </div>
 
-## The problem
+---
 
-Long documents (contracts, invoices, reports, slide decks) are slow to read, and "chat with your PDF" tools make you trust an AI answer without any way to check it. Most also break the moment a free API key is rate-limited or a model is retired.
+## The Problem
 
-## The solution
+Long documents such as contracts, invoices, reports, lecture notes and presentations take time to understand. Traditional document chat tools can provide answers without making it easy to verify where those answers came from.
 
-DocLens turns a document into something you can **read, question and verify**.
+AI services can also face rate limits, unavailable models and changing API access.
 
-| | You want to… | DocLens gives you… |
-|:-:|---|---|
-| ⚡ | Understand it fast | 16 extraction modes: summary, risks, timeline, action items, study notes and more |
-| ✅ | Trust the answer | Chat that cites page/slide numbers and lists the exact source passages |
-| 🔍 | See what matters | A reader that highlights dates, amounts, emails and key terms, with instant search |
-| 🧾 | Get data out | A table of fields you choose across up to 5 files, exported to Excel or CSV |
-| 🔀 | Spot differences | Document comparison with a similarity score |
-| 📷 | Read scans | Vision-based OCR for scanned PDFs and photos |
+## The Solution
 
-<div align="center"><img src="docs/divider.svg" alt="" width="60%"></div>
+**DocLens AI** turns documents into something you can read, question, analyse and verify. Upload a document, extract useful information, ask questions and export results in formats you can use.
 
-## How it works
+| Feature | What DocLens AI offers |
+|---|---|
+| ⚡ Document extraction | 16 extraction modes for summaries, key points, risks, timelines, action items and more |
+| 💬 Chat with documents | Ask questions and inspect supporting passages and page references |
+| 🔍 Document Lens | Search text and highlight useful information, including dates, amounts, emails and key terms |
+| 📊 Document analytics | Explore word counts, reading time, keyword frequency and document statistics |
+| 🧾 Structured extraction | Extract selected fields across multiple files and export the results |
+| 🔀 Document comparison | Compare documents and inspect their similarities |
+| 📷 Scanned document support | Use vision-based OCR to read supported scanned PDFs and images |
+| 📥 Multiple export formats | Download results in supported formats such as Word, Excel, CSV, Markdown, HTML, JSON and TXT |
+
+<div align="center">
+  <img src="doc/workflow.png" alt="Three simple steps: upload, extract or chat, and download" width="100%">
+</div>
+
+## How It Works
+
+DocLens follows a straightforward workflow:
+
+1. **Upload:** Add supported documents, including PDF, Word, PowerPoint and text files.
+2. **Analyse:** Choose an extraction mode, ask questions, compare files or explore document statistics.
+3. **Verify and export:** Review the generated results and available source references, then download the output.
+
+### Architecture
 
 ```mermaid
 flowchart LR
-    A(["Upload<br/>PDF · Word · PowerPoint · images"]):::input --> B["Read and OCR<br/>PyMuPDF · Gemini vision"]:::step
-    B --> C["Lens · Search · Stats<br/>instant, no AI needed"]:::free
-    B --> D{{"AI engine<br/>Gemini → OpenRouter → Groq"}}:::ai
-    D --> E["Extract<br/>16 modes"]:::out
-    D --> F["Chat<br/>with sources"]:::out
-    D --> G["Fields<br/>to Excel or CSV"]:::out
-    D --> H["Compare<br/>documents"]:::out
-    classDef input fill:#f0dfa8,stroke:#c9a84c,color:#0d0d0d
-    classDef step fill:#ede7d9,stroke:#8a9ba8,color:#0d0d0d
-    classDef free fill:#cfe0d4,stroke:#3d6b4f,color:#0d0d0d
-    classDef ai fill:#f6d5c6,stroke:#b5451b,color:#0d0d0d
-    classDef out fill:#d3def2,stroke:#3c6ebe,color:#0d0d0d
+    A["Upload Documents"] --> B["Read and Parse"]
+    B --> C["Lens, Search and Stats"]
+    B --> D["AI Provider Layer"]
+    D --> E["Document Extraction"]
+    D --> F["Chat with Sources"]
+    D --> G["Structured Fields"]
+    D --> H["Document Comparison"]
+    E --> I["Export Results"]
+    G --> I
+    F --> I
 ```
-
-<div align="center"><img src="docs/divider.svg" alt="" width="60%"></div>
-
-## Engineering decisions
-
-The interesting parts of this project were the problems underneath the features.
-
-| | Challenge | What I did |
-|:-:|---|---|
-| 🆓 | **Free APIs fail** (keys expire, models retire, limits hit) | Provider layer with automatic failover: Gemini → OpenRouter → Groq, model by model. Model names are configurable without code changes. |
-| 📚 | **A 5,000-page PDF can't fit in a prompt** | PyMuPDF for fast parsing (about 0.1 s for 5,000 pages), a default 300-page window, a page-range picker, and map-reduce condensing that reports how much it covered instead of silently dropping text. |
-| 🎯 | **Chat on big files loses the middle** | TF-IDF-style retrieval picks the most relevant sections for each question, so chat stays fast and accurate. |
-| ✅ | **Users can't verify AI output** | Every answer shows its source passages; a no-AI reader highlights the facts in the original text. |
-| 🧾 | **Structured extraction is brittle** | Strict JSON prompts, tolerant parsing, a "Not found" rule instead of guessing, and per-file isolation so one failure doesn't break the batch. |
-| 📷 | **Scanned documents have no text** | Pages with nothing readable are detected automatically, rendered to images with PyMuPDF and transcribed with Gemini vision (up to 16 pages per run). Results are cached per session so a scan is never read twice. |
-| 💸 | **Free-tier quotas run out fast** | Repeat extractions are served from a cache, chat sends at most about 80,000 characters through retrieval, Gemini's reasoning effort is set low, and the Fields table remembers finished files so a retry only re-runs what failed. |
-| 🛡️ | **Uploaded files can't be trusted** | Document text is HTML-escaped before highlighting, and exported HTML has scripts and event handlers stripped, so a malicious file can't inject code into the page. |
-| 🔒 | **Privacy in a shared web app** | Per-visitor sessions, verified with a two-user test; server caches are keyed by content and expire after 30 minutes. |
-
-<div align="center"><img src="docs/divider.svg" alt="" width="60%"></div>
 
 ## Screenshots
 
-<table>
-  <tr>
-    <td width="50%" valign="top" align="center"><b>Instant insights, no AI needed</b><br><br><img src="docs/screenshots/stats.png" alt="Statistics and keyword chart"></td>
-    <td width="50%" valign="top" align="center"><b>On a phone</b><br><br><img src="docs/screenshots/mobile.png" alt="Mobile layout"></td>
-  </tr>
-</table>
+### 1. Document Intelligence — Extraction
 
-<!--
-  Add a real Extract screenshot after you deploy:
-  1. Run an extraction, take a screenshot, save it as docs/screenshots/extract.png
-  2. Replace this comment with:  <img src="docs/screenshots/extract.png" alt="AI extraction result" width="100%">
--->
+Upload a document and extract structured insights, key points and useful information.
 
-## Tech stack
+<div align="center">
+  <img src="doc/extract.png" alt="DocLens AI extraction results with key points and insights" width="100%">
+</div>
+
+### 2. Chat with Your Document
+
+Ask questions about an uploaded document and inspect the supporting information and source references.
+
+<div align="center">
+  <img src="doc/chats.png" alt="DocLens AI chat with document source passages" width="100%">
+</div>
+
+### 3. Document Statistics and Keyword Analysis
+
+Explore document metrics, reading time, word counts, keyword frequency and detected information.
+
+<div align="center">
+  <img src="doc/stats.png" alt="DocLens AI document statistics and keyword chart" width="100%">
+</div>
+
+## Engineering Decisions
+
+The project focuses on practical challenges involved in building a document-intelligence application.
+
+| Challenge | Approach |
+|---|---|
+| API availability and rate limits | A provider layer supports configured AI providers and fallback handling. |
+| Large documents | Page-range controls and text-condensing strategies help manage context limits. |
+| Relevant document chat | Retrieval selects relevant sections to help answer questions about larger documents. |
+| Answer verification | Source passages and page references help users check generated answers. |
+| Structured extraction | Structured prompts, tolerant parsing and missing-value handling help produce usable results. |
+| Scanned PDFs | Page rendering and vision-based OCR help extract text from supported scans. |
+| Repeated requests | Caching helps avoid unnecessary repeat processing where applicable. |
+| Uploaded content safety | Input handling and sanitisation help reduce risks when displaying document content. |
+| Multiple visitors | Session handling and cache isolation help separate users' document-processing state. |
+
+## Tech Stack
 
 ![Python](https://img.shields.io/badge/Python-3776AB?style=flat-square&logo=python&logoColor=white)
 ![Streamlit](https://img.shields.io/badge/Streamlit-FF4B4B?style=flat-square&logo=streamlit&logoColor=white)
-![Gemini](https://img.shields.io/badge/Google%20Gemini-4285F4?style=flat-square&logo=googlegemini&logoColor=white)
-![pandas](https://img.shields.io/badge/pandas-150458?style=flat-square&logo=pandas&logoColor=white)
+![Google Gemini](https://img.shields.io/badge/Google_Gemini-4285F4?style=flat-square&logo=googlegemini&logoColor=white)
+![Pandas](https://img.shields.io/badge/pandas-150458?style=flat-square&logo=pandas&logoColor=white)
 ![PyMuPDF](https://img.shields.io/badge/PyMuPDF-0d0d0d?style=flat-square)
 ![python-docx](https://img.shields.io/badge/python--docx-0d0d0d?style=flat-square)
 ![python-pptx](https://img.shields.io/badge/python--pptx-0d0d0d?style=flat-square)
 ![openpyxl](https://img.shields.io/badge/openpyxl-0d0d0d?style=flat-square)
 
-<div align="center"><img src="docs/divider.svg" alt="" width="60%"></div>
+## Run It Locally
 
-## Run it locally
+### 1. Clone the repository
 
 ```bash
 git clone https://github.com/Shariqueperwez/DocLens-AI.git
 cd DocLens-AI
+```
+
+### 2. Create and activate a virtual environment
+
+**Windows:**
+
+```bash
 python -m venv venv
-venv\Scripts\activate          # macOS/Linux: source venv/bin/activate
+venv\Scripts\activate
+```
+
+**macOS / Linux:**
+
+```bash
+python -m venv venv
+source venv/bin/activate
+```
+
+### 3. Install dependencies
+
+```bash
 pip install -r requirements.txt
 ```
 
-Add a free key from [aistudio.google.com/apikey](https://aistudio.google.com/apikey) in `.streamlit/secrets.toml`:
+### 4. Configure your API key
+
+Create `.streamlit/secrets.toml` and add your Google Gemini API key:
 
 ```toml
 GEMINI_API_KEY = "your_key_here"
 ```
 
+Get an API key from [Google AI Studio](https://aistudio.google.com/apikey).
+
+### 5. Start the application
+
 ```bash
 streamlit run app.py
 ```
 
-> 🔐 `secrets.toml` is git-ignored. Never commit a real key.
+Open the local URL displayed in your terminal.
 
-<details>
-<summary><b>Project layout</b></summary>
+> 🔐 **Security:** Never commit real API keys or confidential documents to GitHub. Keep `secrets.toml` out of version control.
 
-<br>
+## Project Structure
 
+```text
+DocLens-AI/
+├── app.py
+├── core/
+│   ├── llm.py
+│   ├── documents.py
+│   ├── retrieval.py
+│   ├── lens.py
+│   ├── search.py
+│   ├── fields.py
+│   ├── prompts.py
+│   └── exporters.py
+├── doc/
+│   ├── showcase.png
+│   ├── chats.png
+│   ├── extract.png
+│   ├── stats.png
+│   └── workflow.png
+├── .streamlit/
+├── requirements.txt
+└── README.md
 ```
-app.py              Streamlit interface
-core/llm.py         Providers, streaming, failover, vision OCR
-core/documents.py   File readers, page ranges, analytics
-core/retrieval.py   Relevance search for large documents
-core/lens.py        Highlight reader and document-type hints
-core/search.py      Instant search and similarity
-core/fields.py      Structured extraction → table
-core/prompts.py     Modes, citation rules, language support
-core/exporters.py   Word / Excel / CSV / Markdown / HTML / JSON / TXT
-```
 
-</details>
+## Limitations
 
-<details>
-<summary><b>Limitations</b></summary>
+- AI providers may enforce rate limits or change model availability.
+- Very large documents may need to be processed in page ranges.
+- AI-generated answers can contain errors. Check the original document and source references before relying on important information.
+- Avoid uploading confidential documents when using services whose data-handling terms are not appropriate for that content.
 
-<br>
-
-- Free AI tiers are rate-limited, and on Google's free tier prompts may be used to improve its products, so avoid confidential files.
-- Documents over about 600 pages must be analysed in page ranges.
-- AI output can be wrong. The reader and source passages exist so you can check it.
-
-</details>
-
-<br>
+## Try DocLens AI
 
 <div align="center">
 
-<img src="docs/divider.svg" alt="" width="60%">
+### Read less. Understand more. Verify every answer.
 
-**Built by [Sharique](https://github.com/Shariqueperwez)**
+[**Launch DocLens AI**](https://doclens-ai.streamlit.app/)
 
-<sub>If DocLens helped you, a ⭐ on the repo means a lot.</sub>
+Built by [**Sharique Perwez**](https://github.com/Shariqueperwez)
+
+If you find this project useful, consider giving the repository a ⭐.
 
 </div>
